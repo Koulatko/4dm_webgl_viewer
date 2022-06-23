@@ -10,8 +10,6 @@
 
 == Navigational commands supported so far
 * `WASD`: fly forward, left, right, and backward.
-** In `horizontal aligned` mode, this always glides you along relative to the ground, even if you are looking up or down.
-** In `Up aligned` mode, this is always relative to your camera and there is no sacred "vertical" axis.
 * `space/shift`: glide straight up or down
 * `Mousewheel`: rotate 4D around the plane of your monitor
 * `r/f`: strafe WINT and ZANT relative to your camera

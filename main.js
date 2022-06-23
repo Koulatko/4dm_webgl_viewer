@@ -21,8 +21,8 @@ const KEY_COMMAND_XYW = '2';
 const KEY_COMMAND_XZW = '3';
 const KEY_COMMAND_ZYW = '4';
 
-const KEY_COMMAND_TWIRL = 't';
-const KEY_COMMAND_UNTWIRL = 'g';
+const KEY_COMMAND_TWIRL_CW = 't';
+const KEY_COMMAND_TWIRL_CCW = 'g';
 const KEY_COMMAND_STRAFE_FORWARD = 'w';
 const KEY_COMMAND_STRAFE_BACKWARD = 's';
 const KEY_COMMAND_STRAFE_LEFT = 'a';
@@ -590,8 +590,8 @@ function camera_frame(){
 	
 	
 	
-	if(keys_held[KEY_COMMAND_TWIRL]) to_twirl += dt;
-	if(keys_held[KEY_COMMAND_UNTWIRL]) to_twirl -= dt;
+	if(keys_held[KEY_COMMAND_TWIRL_CW]) to_twirl += dt;
+	if(keys_held[KEY_COMMAND_TWIRL_CCW]) to_twirl -= dt;
 	
 	
 	orthonormalize4(camera_orr, camera_orr);
