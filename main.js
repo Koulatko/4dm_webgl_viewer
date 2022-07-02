@@ -16,6 +16,22 @@ const world_size_y = 32;
 const world_size_z = 32;
 const world_size_w = 32;
 
+const KEY_COMMAND_XYZ = '1';
+const KEY_COMMAND_XYW = '2';
+const KEY_COMMAND_XZW = '3';
+const KEY_COMMAND_YZW = '4';
+
+const KEY_COMMAND_TWIRL_CW = 't';
+const KEY_COMMAND_TWIRL_CCW = 'g';
+const KEY_COMMAND_STRAFE_FORWARD = 'w';
+const KEY_COMMAND_STRAFE_BACKWARD = 's';
+const KEY_COMMAND_STRAFE_LEFT = 'a';
+const KEY_COMMAND_STRAFE_RIGHT = 'd';
+const KEY_COMMAND_STRAFE_UP = ' ';
+const KEY_COMMAND_STRAFE_DOWN = 'Shift';
+const KEY_COMMAND_STRAFE_WINT = 'r';
+const KEY_COMMAND_STRAFE_ZANT = 'f';
+
 function loadShader(gl,source,type){
 	let shader = gl.createShader(type);
 	gl.shaderSource(shader,source);
@@ -312,7 +328,30 @@ void main(){
 }
 `;
 
+function camera_align(key){
+  switch(key){
+    case KEY_COMMAND_XYZ:
+      camera_orr = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
+      break;
 
+    case KEY_COMMAND_XYW:
+      camera_orr = [0,0,0,1, 0,1,0,0, 1,0,0,0, 0,0,1,0];
+      break;
+
+    case KEY_COMMAND_YZW:
+      camera_orr = [0,0,-1,0,0,1,0,0,0,0,0,-1,1,0,0,0];
+      break;
+  }
+
+  camera_mode = "up_aligned";
+  return;
+}
+
+function camera_report(){
+  console.log("Camera orientation is now:", camera_orr);
+  console.log(".. with determinant:", glMatrix.mat4.determinant(camera_orr));
+  console.log(".. and mode:", camera_mode);
+}
 
 function camera_toggle(){
 	if(camera_mode == "up_aligned"){
@@ -462,22 +501,22 @@ function camera_frame(){
 		camera_orr[13] = 0.;
 		
 		
-		if(keys_held[82]){
+		if(keys_held[KEY_COMMAND_STRAFE_WINT]){
 			camera_vel[0] += disp*wint_hor[0];
 			camera_vel[2] += disp*wint_hor[1];
 			camera_vel[3] += disp*wint_hor[2];
 		}
-		if(keys_held[70]){
+		if(keys_held[KEY_COMMAND_STRAFE_ZANT]){
 			camera_vel[0] += disp*-wint_hor[0];
 			camera_vel[2] += disp*-wint_hor[1];
 			camera_vel[3] += disp*-wint_hor[2];
 		}
 		
 		
-		if(keys_held[32]){
+		if(keys_held[KEY_COMMAND_STRAFE_UP]){
 			camera_vel[1] += disp;
 		}
-		if(keys_held[16]){
+		if(keys_held[KEY_COMMAND_STRAFE_DOWN]){
 			camera_vel[1] -= disp;
 		}
 	}
@@ -526,44 +565,44 @@ function camera_frame(){
 		forward_hor[2] = -camera_orr[11];
 		
 		
-		if(keys_held[32]){
+		if(keys_held[KEY_COMMAND_STRAFE_UP]){
 			camera_vel[0] += disp*camera_orr[4];
 			camera_vel[1] += disp*camera_orr[5];
 			camera_vel[2] += disp*camera_orr[6];
 			camera_vel[3] += disp*camera_orr[7];
 		}
-		if(keys_held[16]){
+		if(keys_held[KEY_COMMAND_STRAFE_DOWN]){
 			camera_vel[0] += disp*-camera_orr[4];
 			camera_vel[1] += disp*-camera_orr[5];
 			camera_vel[2] += disp*-camera_orr[6];
 			camera_vel[3] += disp*-camera_orr[7];
 		}
 		
-		if(keys_held[82]){
+		if(keys_held[KEY_COMMAND_STRAFE_WINT]){
 			camera_vel[1] += 0.2*disp;
 		}
-		if(keys_held[70]){
+		if(keys_held[KEY_COMMAND_STRAFE_ZANT]){
 			camera_vel[1] -= 0.2*disp;
 		}
 	}
 	
 	
-	if(keys_held[87]){
+	if(keys_held[KEY_COMMAND_STRAFE_FORWARD]){
 		camera_vel[0] += disp*forward_hor[0];
 		camera_vel[2] += disp*forward_hor[1];
 		camera_vel[3] += disp*forward_hor[2];
 	}
-	if(keys_held[83]){
+	if(keys_held[KEY_COMMAND_STRAFE_BACKWARD]){
 		camera_vel[0] += disp*-forward_hor[0];
 		camera_vel[2] += disp*-forward_hor[1];
 		camera_vel[3] += disp*-forward_hor[2];
 	}
-	if(keys_held[68]){
+	if(keys_held[KEY_COMMAND_STRAFE_RIGHT]){
 		camera_vel[0] += disp*right_hor[0];
 		camera_vel[2] += disp*right_hor[1];
 		camera_vel[3] += disp*right_hor[2];
 	}
-	if(keys_held[65]){
+	if(keys_held[KEY_COMMAND_STRAFE_LEFT]){
 		camera_vel[0] += disp*-right_hor[0];
 		camera_vel[2] += disp*-right_hor[1];
 		camera_vel[3] += disp*-right_hor[2];
@@ -574,8 +613,8 @@ function camera_frame(){
 	
 	
 	
-	if(keys_held[84]) to_twirl += dt;
-	if(keys_held[71]) to_twirl -= dt;
+	if(keys_held[KEY_COMMAND_TWIRL_CW]) to_twirl += dt;
+	if(keys_held[KEY_COMMAND_TWIRL_CCW]) to_twirl -= dt;
 	
 	
 	orthonormalize4(camera_orr, camera_orr);
@@ -1008,11 +1047,24 @@ function init(){
 	gl.enable(gl.DEPTH_TEST);
 	
 	window.addEventListener("keydown",(e)=>{
-		keys_held[e.keyCode] = true;
-		if(e.keyCode == 49) camera_toggle();
+		keys_held[e.key] = true;
+    switch(e.key)
+    { case KEY_COMMAND_XZW: // toggle back and forth whether or not Y axis is vertical
+        camera_toggle();
+        // camera_report();
+        break;
+
+      case KEY_COMMAND_XYZ: // align some other horizontal hyperplane
+      case KEY_COMMAND_XYW:
+      case KEY_COMMAND_YZW:
+        camera_align(e.key);
+        // camera_report();
+        break;
+
+    }
 	});
 	window.addEventListener("keyup",(e)=>{
-		keys_held[e.keyCode] = false;
+		keys_held[e.key] = false;
 	});
 	
 	window.addEventListener("wheel",(e)=>{
