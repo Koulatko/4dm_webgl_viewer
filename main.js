@@ -19,7 +19,7 @@ const world_size_w = 32;
 const KEY_COMMAND_XYZ = '1';
 const KEY_COMMAND_XYW = '2';
 const KEY_COMMAND_XZW = '3';
-const KEY_COMMAND_ZYW = '4';
+const KEY_COMMAND_YZW = '4';
 
 const KEY_COMMAND_TWIRL_CW = 't';
 const KEY_COMMAND_TWIRL_CCW = 'g';
@@ -328,7 +328,30 @@ void main(){
 }
 `;
 
+function camera_align(key){
+  switch(key){
+    case KEY_COMMAND_XYZ:
+      camera_orr = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
+      break;
 
+    case KEY_COMMAND_XYW:
+      camera_orr = [0,0,0,1, 0,1,0,0, 1,0,0,0, 0,0,1,0];
+      break;
+
+    case KEY_COMMAND_YZW:
+      camera_orr = [0,0,-1,0,0,1,0,0,0,0,0,-1,1,0,0,0];
+      break;
+  }
+
+  camera_mode = "up_aligned";
+  return;
+}
+
+function camera_report(){
+  console.log("Camera orientation is now:", camera_orr);
+  console.log(".. with determinant:", glMatrix.mat4.determinant(camera_orr));
+  console.log(".. and mode:", camera_mode);
+}
 
 function camera_toggle(){
 	if(camera_mode == "up_aligned"){
@@ -1024,9 +1047,21 @@ function init(){
 	gl.enable(gl.DEPTH_TEST);
 	
 	window.addEventListener("keydown",(e)=>{
-		// keys_held[e.keyCode] = true;
 		keys_held[e.key] = true;
-		if(e.key == KEY_COMMAND_XZW) camera_toggle();
+    switch(e.key)
+    { case KEY_COMMAND_XZW: // toggle back and forth whether or not Y axis is vertical
+        camera_toggle();
+        // camera_report();
+        break;
+
+      case KEY_COMMAND_XYZ: // align some other horizontal hyperplane
+      case KEY_COMMAND_XYW:
+      case KEY_COMMAND_YZW:
+        camera_align(e.key);
+        // camera_report();
+        break;
+
+    }
 	});
 	window.addEventListener("keyup",(e)=>{
 		keys_held[e.key] = false;
